@@ -9,9 +9,9 @@ namespace goal {
             Func<Cell, bool> judge = (neighbour) => {
                 return neighbour.getHistory ().Last () == 1;
             };
-            var grid = new Grid (5, judge);
+            var grid = new Grid (10, judge);
 
-            // Production
+            // // Production
             // int command = 0;
             // int iteration = 0;
             // Console.WriteLine (string.Format ("~~~ Gen {0} ~~~", 0));
@@ -184,7 +184,7 @@ namespace goal {
                 var cell = item.Value;
 
                 var weight = cell.getWeight ();
-                var print_line = string.Format ("[{0}][{1]]\t", weight);
+                var print_line = string.Format ("[{0}]\t", weight);
                 //Console.ForegroundColor = cell.getHistory ().Last () == 1 ? ConsoleColor.Green : ConsoleColor.Red;
 
                 Console.Write (print_line);
