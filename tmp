@@ -1,0 +1,224 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace goal {
+    class Program {
+        static void Main (string[] args) {
+
+            Console.Clear ();
+            Console.ResetColor ();
+
+            var matrix = new Grid (3);
+
+            Console.WriteLine ("~~~ Gen 0 ~~~");
+            matrix.Print ();
+            matrix.Step ();
+
+            Console.WriteLine ("~~~ Gen 1 ~~~");
+            matrix.Print ();
+            matrix.Step ();
+
+            Console.WriteLine ("~~~ Gen 2 ~~~");
+            matrix.Print ();
+            matrix.Step ();
+
+            Console.WriteLine ("~~~ Gen 3 ~~~");
+            matrix.Print ();
+        }
+    }
+
+    public class State {
+        public int Value { get; set; }
+        public State () {
+            var random = new Random (DateTime.Now.Millisecond);
+            this.Value = random.Next (0, 2);
+        }
+        public State (int value) {
+            this.Value = value;
+        }
+
+        public State (bool alive) {
+            this.Value = alive ? 1 : 0;
+        }
+    }
+
+    public class Cell : List<State> {
+        public Cell () {
+            this.Add (new State ());
+        }
+
+        public List<State> States {
+            get { return this; }
+        }
+    }
+
+    public class Point {
+        public Point (int row, int column) {
+            this.Row = row;
+            this.Column = column;
+        }
+
+        public int Row { get; private set; }
+        public int Column { get; private set; }
+
+        public override bool Equals (object obj) {
+            if (obj == null || GetType () != obj.GetType ()) {
+                return false;
+            }
+
+            var other = (Point) obj;
+
+            return this.Row == other.Row && this.Column == other.Column;
+        }
+
+        public override int GetHashCode () {
+            return string.Format ("{0}{1}", this.Row, this.Column).GetHashCode ();
+        }
+    }
+    // public Point Left () {
+    //             return new Point (row, column - 1);
+    //         }
+    //         public Point Right () {
+    //             return new Point (row, column + 1);
+    //         }
+    //         public Point Top () {
+    //             return new Point (row - 1, column);
+    //         }
+    //         public Point Bottom () {
+    //             return new Point (row + 1, column);
+    //         }
+
+    public static class GridExtensions {
+        public static List<Cell> getNeighbours (this Grid grid, Point reference_point) {
+            var neighbours = new List<Cell> ();
+
+            Cell left_neighbour = null;
+            if (grid.TryGetValue (new Point (reference_point.Row, reference_point.Column - 1), out left_neighbour))
+                neighbours.Add (left_neighbour);
+
+            Cell right_neighbour = null;
+            if (grid.TryGetValue (new Point (reference_point.Row, reference_point.Column + 1), out right_neighbour))
+                neighbours.Add (right_neighbour);
+
+            Cell top_neighbour = null;
+            if (grid.TryGetValue (new Point (reference_point.Row - 1, reference_point.Column), out top_neighbour))
+                neighbours.Add (top_neighbour);
+
+            Cell bottom_neighbour = null;
+            if (grid.TryGetValue (new Point (reference_point.Row + 1, reference_point.Column), out bottom_neighbour))
+                neighbours.Add (bottom_neighbour);
+
+            return neighbours;
+        }
+
+        public static State GetNewState (this List<Cell> neighbours, Func<List<Cell>, State> condition) {
+            return condition (neighbours);
+        }
+    }
+    // public static class CellExtensions {
+    //     public static List<Cell> GetNeighbours (this Cell cell, Grid grid) {
+    //         List<Cell> neighbours = new List<Cell> ();
+
+    //         // left
+    //         grid.TryGetValue (new Point ())
+
+    //         return neighbours;
+    //     }
+    // }
+
+    public class Grid : Dictionary<Point, Cell> {
+        private int dimention;
+        public Grid (int dimention) {
+
+            //map = new Dictionary<Point, Cell> (dimention * dimention);
+            var random = new Random (DateTime.Now.Millisecond);
+            for (int i = 0; i < this.Count; i++) {
+                this.Add (new Point (i / dimention, i % dimention), new Cell ());
+            }
+
+            // this.dimention = dimention;
+            // //this.matrix = new int[dimention * dimention][];
+            // var random = new Random (DateTime.Now.Millisecond);
+            // for (int i = 0; i < matrix.Length; i++) {
+            //     matrix[i] = new int[] {
+            //         i / dimention, // row
+            //         i % dimention, // column
+            //         // i == 0 ? 0 : 1
+            //         random.Next (2) // state
+            //     };
+            // }
+        }
+
+        public void Step () {
+            foreach (var item in this) {
+                var cell = item.Value;
+                var cell_location = item.Key;
+                var cell_neighbours = this.getNeighbours (cell_location);
+                //var newState = cell.Value.NewState (neighbours, n => { return new State (); });
+                var newState = cell_neighbours.GetNewState (neighbours => {
+                    return neighbours.Count > 0 ? new State (1) : new State (0);
+                });
+
+                cell.States.Add (newState);
+            }
+            // for (int i = 0; i < map.Count; i++) {
+            //     var nextGeneration = NextGeneration (i);
+            //     var history = matrix[i].ToList ();
+            //     history.Add (nextGeneration);
+            //     matrix[i] = history.ToArray ();
+
+            // }
+        }
+
+        public int NextGeneration (int i) {
+            //string current_elememt = String.Format ("[{0},{1}][{2}]", matrix[i][0], matrix[i][1], matrix[0][2]);
+            int alive_neighbours = 0;
+
+            int row = matrix[i][0];
+            int column = matrix[i][1];
+
+            // top
+            if (row - 1 >= 0) {
+                alive_neighbours += matrix[i - dimention][matrix[i].Length - 1];
+            }
+            // right
+            if (column + 1 < dimention) {
+                alive_neighbours += matrix[i + 1][matrix[i].Length - 1];
+            }
+            // bottom
+            if (row + 1 < dimention) {
+                alive_neighbours += matrix[i + dimention][matrix[i].Length - 1];
+            }
+            // left
+            if (column - 1 >= 0) {
+                alive_neighbours += matrix[i - 1][matrix[i].Length - 1];
+            }
+
+            return alive_neighbours > 0 ? 1 : 0;
+        }
+
+        public void Print () {
+            for (int i = 0; i < matrix.Length; i++) {
+                var row = matrix[i][0];
+                var column = matrix[i][1];
+                var history = new int[matrix[i].Length - 2];
+                Array.Copy (matrix[i], 2, history, 0, matrix[i].Length - 2);
+
+                // this prints the entire history
+                // var result = String.Format("[{0}]", String.Join (", ", history));
+
+                // This prints only the last element from history
+                var result = string.Format ("[{0}]", history.Last ());
+
+                Console.ForegroundColor = history.Last () == 0 ? ConsoleColor.Red : ConsoleColor.Green;
+
+                Console.Write (result + "\t");
+                if ((i + 1) % dimention == 0)
+                    Console.WriteLine ();
+            }
+
+            Console.ResetColor ();
+        }
+    }
+}

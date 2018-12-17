@@ -1,0 +1,11 @@
+/Users/kstanoev/programming/dotnet/goal/obj/Debug/netcoreapp2.1/goal.csprojAssemblyReference.cache
+/Users/kstanoev/programming/dotnet/goal/obj/Debug/netcoreapp2.1/goal.csproj.CoreCompileInputs.cache
+/Users/kstanoev/programming/dotnet/goal/obj/Debug/netcoreapp2.1/goal.AssemblyInfoInputs.cache
+/Users/kstanoev/programming/dotnet/goal/obj/Debug/netcoreapp2.1/goal.AssemblyInfo.cs
+/Users/kstanoev/programming/dotnet/goal/bin/Debug/netcoreapp2.1/goal.deps.json
+/Users/kstanoev/programming/dotnet/goal/bin/Debug/netcoreapp2.1/goal.runtimeconfig.json
+/Users/kstanoev/programming/dotnet/goal/bin/Debug/netcoreapp2.1/goal.runtimeconfig.dev.json
+/Users/kstanoev/programming/dotnet/goal/bin/Debug/netcoreapp2.1/goal.dll
+/Users/kstanoev/programming/dotnet/goal/bin/Debug/netcoreapp2.1/goal.pdb
+/Users/kstanoev/programming/dotnet/goal/obj/Debug/netcoreapp2.1/goal.dll
+/Users/kstanoev/programming/dotnet/goal/obj/Debug/netcoreapp2.1/goal.pdb
