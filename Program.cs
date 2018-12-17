@@ -7,7 +7,7 @@ namespace goal {
         public static Random rnd = new Random (DateTime.Now.Millisecond);
         static void Main (string[] args) {
             Func<Cell, bool> judge = (neighbour) => {
-                return neighbour.getHistory ().Last () == 1;
+                return neighbour.getHistory ().Last ();
             };
             var grid = new Grid (10, judge);
 
@@ -46,11 +46,29 @@ namespace goal {
             this.judge = judge;
             var random = new Random (DateTime.Now.Millisecond);
             for (int i = 0; i < dimention * dimention; i++) {
-                this.Add (new Point (i / dimention, i % dimention), new Cell (n => { return n.Sum (); }));
+                this.Add (new Point (i / dimention, i % dimention),
+                    new Cell (history => {
+                        int longestStreak = 0;
+                        int currentStreak = 0;
+
+                        foreach (var state in history) {
+                            if (state) {
+                                currentStreak++;
+                                if (currentStreak > longestStreak)
+                                    longestStreak = currentStreak;
+
+                                continue;
+                            }
+
+                            currentStreak = 0;
+                        }
+
+                        return longestStreak;
+                    }));
             }
         }
         private Func<Cell, bool> judge = (neighbour) => {
-            return neighbour.getHistory ().Last () == 1;
+            return neighbour.getHistory ().Last ();
         };
 
         private Func<IEnumerable<Cell>, bool> filter = (neighbours) => {
@@ -73,36 +91,36 @@ namespace goal {
     }
 
     public class Cell {
-        private List<int> history;
-        private int newState;
-        private Func<List<int>, double> weight;
+        private List<bool> history;
+        private bool newState;
+        private Func<IEnumerable<bool>, decimal> weight;
 
         public Cell () {
-            history = new List<int> ();
+            history = new List<bool> ();
             history.Add (Generator.RandomState ());
         }
 
-        public Cell (Func<List<int>, double> weight) : this () {
+        public Cell (Func<IEnumerable<bool>, decimal> weight) : this () {
             this.weight = weight;
         }
 
-        public IEnumerable<int> getHistory () {
+        public IEnumerable<bool> getHistory () {
             return history;
         }
         public void commit (bool state) {
-            newState = state ? 1 : 0;
+            newState = state;
         }
-        public void stage (int state) {
+        public void stage (bool state) {
             newState = state;
         }
         public void commit () {
             history.Add (newState);
         }
-        public double getWeight () {
+        public decimal getWeight () {
             if (weight != null) {
                 return weight (history);
             } else {
-                return history.Sum ();
+                return history.Count (state => state == true);
             }
         }
     }
@@ -173,8 +191,8 @@ namespace goal {
     }
     public static class Generator {
         static Random random = new Random (DateTime.Now.Millisecond);
-        public static int RandomState () {
-            return random.Next (0, 2);
+        public static bool RandomState () {
+            return random.Next (0, 2) == 1;
         }
     }
     public static class Printer {
